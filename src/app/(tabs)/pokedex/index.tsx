@@ -24,22 +24,40 @@ export default function Pokedex() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    fetchPokemonList(LIMIT, 0).then((results) => {
-      setPokemon(results);
-      setOffset(LIMIT);
-      setLoading(false);
-    });
+    fetchPokemonList(LIMIT, 0)
+      .then((results) => {
+        setPokemon(results);
+        setOffset(LIMIT);
+      })
+      .catch((err) => {
+        setError(err.message || "Failed to load Pokémon");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const loadMore = async () => {
-    if (loadingMore) return;
+    if (loadingMore || !hasMore) return;
     setLoadingMore(true);
-    const newPokemon = await fetchPokemonList(LIMIT, offset);
-    setPokemon((prev) => [...prev, ...newPokemon]);
-    setOffset((prev) => prev + LIMIT);
-    setLoadingMore(false);
+    try {
+      const newPokemon = await fetchPokemonList(LIMIT, offset);
+      if (newPokemon.length === 0 || newPokemon.length < LIMIT) {
+        setHasMore(false);
+      }
+      if (newPokemon.length > 0) {
+        setPokemon((prev) => [...prev, ...newPokemon]);
+        setOffset((prev) => prev + LIMIT);
+      }
+    } catch (err) {
+      console.error("Failed to load more Pokémon:", err);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   const renderItem = ({ item }: { item: Pokemon }) => {
@@ -63,6 +81,14 @@ export default function Pokedex() {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
@@ -110,5 +136,11 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingVertical: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#E3350D",
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
 });

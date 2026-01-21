@@ -9,9 +9,14 @@ export async function fetchPokemonList(
   offset = 0
 ): Promise<Pokemon[]> {
   const res = await fetch(`${BASE_URL}/pokemon?limit=${limit}&offset=${offset}`);
+    if (!res.ok) {
+    throw new Error(`Failed to fetch Pokemon list: ${res.status}`);
+  }
   const data: PokemonListResponse = await res.json();
+  console.log(data);
   return data.results;
 }
+
 
 export function getPokemonId(url: string): string {
   const parts = url.split("/").filter(Boolean);
