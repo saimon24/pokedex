@@ -10,7 +10,14 @@ export interface FavoritePokemon {
 
 async function getFavorites(): Promise<FavoritePokemon[]> {
   const data = await AsyncStorage.getItem(FAVORITES_KEY);
-  return data ? JSON.parse(data) : [];
+  if (!data) return [];
+  try {
+    return JSON.parse(data);
+  } catch {
+    console.warn("Failed to parse favorites, resetting to empty array");
+    await AsyncStorage.removeItem(FAVORITES_KEY);
+    return [];
+  }
 }
 
 async function saveFavorites(favorites: FavoritePokemon[]): Promise<void> {

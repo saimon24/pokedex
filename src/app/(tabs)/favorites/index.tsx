@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useFavorites } from "@/src/lib/favorites";
 import { getPokemonSpriteUrl } from "@/src/lib/pokeapi";
 import { colors } from "@/src/theme/colors";
+import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { Href, useRouter } from "expo-router";
 import { useCallback } from "react";
@@ -68,7 +68,10 @@ export default function Favorites() {
             </Text>
           </View>
           <Pressable
-            onPress={() => removeFavorite(item.id)}
+            onPress={(e) => {
+              e.stopPropagation();
+              removeFavorite(item.id);
+            }}
             hitSlop={10}
             style={styles.removeButton}
           >
