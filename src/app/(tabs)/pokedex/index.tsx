@@ -1,29 +1,21 @@
-import { Ionicons } from "@expo/vector-icons";
+import { PokemonListItem } from "@/src/components/PokemonListItem";
 import { useFavorites } from "@/src/lib/favorites";
-import {
-  fetchPokemonList,
-  getPokemonId,
-  getPokemonSpriteUrl,
-} from "@/src/lib/pokeapi";
+import { fetchPokemonList, getPokemonId } from "@/src/lib/pokeapi";
 import type { Pokemon } from "@/src/types/pokemon";
 import { useFocusEffect } from "@react-navigation/native";
-import { Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 
 const TOTAL_POKEMON = 150;
 
 export default function Pokedex() {
-  const router = useRouter();
   const { isFavorite, refresh } = useFavorites();
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,24 +60,8 @@ export default function Pokedex() {
 
   const renderItem = ({ item }: { item: Pokemon }) => {
     const id = getPokemonId(item.url);
-    const spriteUrl = getPokemonSpriteUrl(id);
-    const isFav = isFavorite(Number(id));
-
     return (
-      <TouchableOpacity
-        style={[styles.item, isFav && styles.favoriteItem]}
-        onPress={() => router.push(`/pokedex/${id}` as Href)}
-      >
-        <Image source={{ uri: spriteUrl }} style={styles.sprite} />
-        <Text style={styles.name}>
-          #{id} {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-        </Text>
-        {isFav && (
-          <View style={styles.starContainer}>
-            <Ionicons name="star" size={20} color="#FFD700" />
-          </View>
-        )}
-      </TouchableOpacity>
+      <PokemonListItem pokemon={item} isFavorite={isFavorite(Number(id))} />
     );
   };
 
@@ -106,44 +82,54 @@ export default function Pokedex() {
   }
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search by name or number..."
-        placeholderTextColor="#999"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        autoCapitalize="none"
-        autoCorrect={false}
-        clearButtonMode="while-editing"
-      />
-      <FlatList
-        data={filteredPokemon}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.name}
-        contentContainerStyle={styles.list}
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No Pokémon found</Text>
-        }
-      />
-    </View>
+    <FlatList
+      data={filteredPokemon}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.name}
+      contentContainerStyle={styles.list}
+      contentInsetAdjustmentBehavior="automatic"
+      keyboardDismissMode="on-drag"
+      keyboardShouldPersistTaps="handled"
+      ListHeaderComponent={
+        <View>
+        <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name or number..."
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+          />
+        </View>
+      }
+      ListEmptyComponent={
+        <Text style={styles.emptyText}>No Pokémon found</Text>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+  title: {
+    fontSize: 34,
+    fontWeight: "700",
+    color: "#333",
+  },
+  subtitle: {
+    fontSize: 15,
+    color: "#999",
+    marginTop: 4,
+    marginBottom: 16,
+  },
   searchInput: {
-    margin: 16,
-    marginBottom: 0,
+    marginBottom: 20,
     paddingHorizontal: 16,
     paddingVertical: 14,
     backgroundColor: "#fff",
@@ -159,32 +145,6 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 16,
-  },
-  item: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    marginBottom: 8,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-  },
-  favoriteItem: {
-    backgroundColor: "#FFFBEB",
-    borderWidth: 1,
-    borderColor: "#FFD700",
-  },
-  starContainer: {
-    marginLeft: "auto",
-    paddingLeft: 8,
-  },
-  sprite: {
-    width: 50,
-    height: 50,
-  },
-  name: {
-    fontSize: 16,
-    marginLeft: 12,
-    fontWeight: "500",
   },
   emptyText: {
     textAlign: "center",

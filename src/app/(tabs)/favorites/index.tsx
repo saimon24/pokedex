@@ -1,15 +1,12 @@
+import { FavoriteListItem } from "@/src/components/FavoriteListItem";
 import { useFavorites } from "@/src/lib/favorites";
-import { getPokemonSpriteUrl } from "@/src/lib/pokeapi";
 import { colors } from "@/src/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { Href, useRouter } from "expo-router";
 import { useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
-  Pressable,
   StyleSheet,
   Text,
   View,
@@ -17,7 +14,6 @@ import {
 
 export default function Favorites() {
   const { favorites, loading, removeFavorite, refresh } = useFavorites();
-  const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
@@ -50,34 +46,21 @@ export default function Favorites() {
       data={favorites}
       keyExtractor={(item) => item.id.toString()}
       contentContainerStyle={styles.listContent}
+      contentInsetAdjustmentBehavior="automatic"
+      ListHeaderComponent={
+        <View style={styles.header}>
+          <Text style={styles.title}>Favorites</Text>
+          <Text style={styles.subtitle}>
+            {favorites.length} {favorites.length === 1 ? "Pokemon" : "Pokemon"} captured
+          </Text>
+        </View>
+      }
       renderItem={({ item }) => (
-        <Pressable
-          style={styles.card}
-          onPress={() => router.push(`/pokedex/${item.id}` as Href)}
-        >
-          <Image
-            source={{ uri: getPokemonSpriteUrl(item.id.toString()) }}
-            style={styles.sprite}
-          />
-          <View style={styles.info}>
-            <Text style={styles.pokemonId}>
-              #{String(item.id).padStart(3, "0")}
-            </Text>
-            <Text style={styles.pokemonName}>
-              {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-            </Text>
-          </View>
-          <Pressable
-            onPress={(e) => {
-              e.stopPropagation();
-              removeFavorite(item.id);
-            }}
-            hitSlop={10}
-            style={styles.removeButton}
-          >
-            <Ionicons name="heart" size={24} color="#E3350D" />
-          </Pressable>
-        </Pressable>
+        <FavoriteListItem
+          id={item.id}
+          name={item.name}
+          onRemove={removeFavorite}
+        />
       )}
     />
   );
@@ -105,33 +88,17 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 16,
   },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.surface.primary,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+  header: {
+    marginBottom: 20,
   },
-  sprite: {
-    width: 60,
-    height: 60,
-  },
-  info: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  pokemonId: {
-    fontSize: 12,
-    color: colors.text.secondary,
-  },
-  pokemonName: {
-    fontSize: 16,
-    fontWeight: "600",
+  title: {
+    fontSize: 34,
+    fontWeight: "700",
     color: colors.text.primary,
-    marginTop: 2,
   },
-  removeButton: {
-    padding: 8,
+  subtitle: {
+    fontSize: 15,
+    color: colors.text.secondary,
+    marginTop: 4,
   },
 });

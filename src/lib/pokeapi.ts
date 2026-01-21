@@ -22,6 +22,9 @@ export async function fetchPokemonDetails(id: string): Promise<PokemonDetails> {
   if (!res.ok) {
     throw new Error(`Failed to fetch Pokemon details: ${res.status}`);
   }
+  // INSERT_YOUR_CODE
+  // Add a short artificial delay before returning the details (e.g. simulate network)
+  await new Promise((resolve) => setTimeout(resolve, 500));
   return res.json();
 }
 

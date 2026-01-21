@@ -9,7 +9,14 @@ export default function FavoritesLayout() {
         headerTitleStyle: { fontWeight: "bold" },
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Favorites" }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Favorites",
+          headerLargeTitle: true,
+          headerLargeStyle: { backgroundColor: "#E3350D" },
+        }}
+      />
     </Stack>
   );
 }

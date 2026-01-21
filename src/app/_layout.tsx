@@ -14,6 +14,14 @@ export default function RootLayout() {
           sheetCornerRadius: 24,
         }}
       />
+      <Stack.Screen
+        name="pokemon-details-modal"
+        options={{
+          presentation: "transparentModal",
+          headerShown: false,
+          animation: "fade",
+        }}
+      />
     </Stack>
   );
 }
