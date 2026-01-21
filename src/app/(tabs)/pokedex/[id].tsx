@@ -1,4 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
 import { statLabels } from "@/src/constants/pokemon";
+import { useFavorites } from "@/src/lib/favorites";
 import { fetchPokemonDetails } from "@/src/lib/pokeapi";
 import { colors, statColors, typeColors } from "@/src/theme/colors";
 import type { PokemonDetails } from "@/src/types/pokemon";
@@ -20,6 +22,7 @@ export default function PokemonDetailsScreen() {
   const [pokemon, setPokemon] = useState<PokemonDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     if (!id) return;
@@ -54,9 +57,21 @@ const artworkUrl = pokemon.sprites.other["official-artwork"].front_default
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={[styles.header, { backgroundColor }]}>
-        <Text style={styles.pokemonId}>
-          #{String(pokemon.id).padStart(3, "0")}
-        </Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.pokemonId}>
+            #{String(pokemon.id).padStart(3, "0")}
+          </Text>
+          <Pressable
+            onPress={() => toggleFavorite({ id: pokemon.id, name: pokemon.name })}
+            hitSlop={10}
+          >
+            <Ionicons
+              name={isFavorite(pokemon.id) ? "heart" : "heart-outline"}
+              size={28}
+              color={colors.white}
+            />
+          </Pressable>
+        </View>
         <Text style={styles.pokemonName}>
           {pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)}
         </Text>
@@ -172,11 +187,16 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
   },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+  },
   pokemonId: {
     fontSize: 16,
     fontWeight: "600",
     color: colors.transparent.white70,
-    alignSelf: "flex-end",
   },
   pokemonName: {
     fontSize: 32,
